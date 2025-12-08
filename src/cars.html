@@ -1,13 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proyecto Final - Cars</title>
-    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+
     <canvas class="webgl"></canvas>
-    <script type="module" src="./script-cars.js"></script>
+
+    <button id="back-btn" class="nav-btn">VOLVER</button>
+
+    <div id="car-detail-panel">
+        <h2 id="detail-name">NOMBRE DEL COCHE</h2>
+        <p id="detail-desc">Descripción del personaje...</p>
+        
+        <div class="stats-container">
+            <div class="stat-row">
+                <span>Velocidad:</span> 
+                <strong id="detail-speed" class="stat-value">0/10</strong>
+            </div>
+            <div class="stat-row">
+                <span>Manejo:</span> 
+                <strong id="detail-handling" class="stat-value">0/10</strong>
+            </div>
+        </div>
+
+        <button id="close-detail">CERRAR FICHA</button>
+    </div>
+
+    <script type="module" src="script-cars.js"></script>
 </body>
 </html>
+
+

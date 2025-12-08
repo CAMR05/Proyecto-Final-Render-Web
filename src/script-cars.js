@@ -1,46 +1,112 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import gsap from 'gsap'
 
 /**
- * ------------------------------------------------------------------
- * CONFIGURACIÓN DE ESCENA
- * ------------------------------------------------------------------
+ * 1. CONFIGURACIÓN DE ESCENA
  */
 const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
-scene.background = new THREE.Color('#1a1a1a') // Fondo asfalto oscuro
+scene.background = new THREE.Color('#1a1a1a') 
+scene.fog = new THREE.Fog('#1a1a1a', 10, 30)
 
-// Niebla para que los coches lejanos se desvanezcan elegantemente
-scene.fog = new THREE.Fog('#1a1a1a', 10, 25)
+// Referencias HTML
+const detailPanel = document.getElementById('car-detail-panel')
+const closeBtn = document.getElementById('close-detail')
+const uiName = document.getElementById('detail-name')
+const uiDesc = document.getElementById('detail-desc')
+const uiSpeed = document.getElementById('detail-speed')
+const uiHandling = document.getElementById('detail-handling')
+
+// Estados
+let isViewingDetail = false 
+let selectedCarIndex = null 
+
+// DEBUG OFF
+const DEBUG_MODE = false; 
 
 /**
- * 🚗 TU COLECCIÓN DE COCHES
- * Añade aquí las rutas de tus modelos GLTF
+ * 🚗 2. DATOS DE LOS COCHES
  */
 const carsList = [
-    { name: 'McQueen', path: '/models/radiator_springs_lightning_mcqueen/scene.gltf', scale: 0.05 },
-    { name: 'Mater', path: '/models/mate/scene.gltf', scale: 1.2 }, // Ejemplo
-    { name: 'Sally', path: '/models/sally/scene.gltf', scale: 0.04 }, // Ejemplo
-    { name: 'Doc', path: '/models/doc_hudson/scene.gltf', scale: 1 }, // Ejemplo
-    { name: 'Ramone', path: '/models/ramone/scene.gltf', scale: 1 }, // Ejemplo
+    { 
+        name: 'Lightining McQueen', 
+        path: '/models/radiator_springs_lightning_mcqueen/scene.gltf', 
+        scale: 0.5, 
+        rotationOffset: 0,
+        bio: "El campeón de la Copa Pistón. Famoso por su velocidad y su lema 'Kachow!'. Ha ganado múltiples campeonatos y aprendido valiosas lecciones sobre la amistad en Radiador Springs.",
+        stats: { speed: '10/10', handling: '8/10' }
+    },
+    { 
+        name: 'Mate (Mater)', 
+        path: '/models/mater/scene.gltf', 
+        scale: 0.5, 
+        rotationOffset: Math.PI, 
+        bio: "El mejor conductor en reversa del mundo. Oxidado por fuera, pero con un corazón de oro.",
+        stats: { speed: '5/10', handling: '10/10' }
+    },
+    { 
+        name: 'Sally Carrera', 
+        path: '/models/sally_carrera/scene.gltf', 
+        scale: 0.5, 
+        rotationOffset: 0,
+        bio: "Abogada de Radiador Springs. Se enamoró del encanto del pueblo.",
+        stats: { speed: '8/10', handling: '9/10' }
+    },
+    { 
+        name: 'Dinoco McQueen', 
+        path: '/models/dinoco_lightning_mcqueen/scene.gltf', 
+        scale: 0.5,
+        rotationOffset: 0,
+        bio: "La versión soñada de McQueen pintado con el azul del patrocinador Dinoco.",
+        stats: { speed: '10/10', handling: '8/10' }
+    },
+    { 
+        name: 'Francesco Bernoulli', 
+        path: '/models/francesco_bernoulli/scene.gltf', 
+        scale: 0.5,
+        rotationOffset: -Math.PI/2,
+        offset: { x: 0.5, y: 0, z: 2.5 }, 
+        bio: "El rival italiano de Fórmula. Es rápido y arrogante.",
+        stats: { speed: '10/10', handling: '10/10' }
+    },
+    { 
+        name: 'Carla Veloso', 
+        path: '/models/carla_veloso/scene.gltf', 
+        scale: 0.5,
+        rotationOffset: 0,
+        offset: { x: 4.5, y: 0, z: 3.5 }, 
+        bio: "Competidora de Brasil. Su diseño aerodinámico la hace letal.",
+        stats: { speed: '9/10', handling: '7/10' }
+    },
+    { 
+        name: 'Cruz Ramirez', 
+        path: '/models/cruz_ramirez/scene.gltf', 
+        scale: 0.5, 
+        rotationOffset: 0, 
+        bio: "Entrenadora experta en tecnología con alma de corredora.",
+        stats: { speed: '9/10', handling: '9/10' }
+    },
+    { 
+        name: 'Holley Shiftwell', 
+        path: '/models/holley_shiftwell/scene.gltf', 
+        scale: 0.5, 
+        rotationOffset: 0, 
+        bio: "Espía británica equipada con la última tecnología.",
+        stats: { speed: '8/10', handling: '10/10' }
+    },
 ]
 
-// Distancia horizontal entre cada coche
 const carGap = 6 
 
 /**
- * 📏 CÁMARA
+ * 3. CÁMARA & LUCES
  */
 const sizes = { width: window.innerWidth, height: window.innerHeight }
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-
-// Posición: Un poco lateral y elevada para verlos en perspectiva "Showroom"
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.5, 100)
 camera.position.set(0, 1.5, 5) 
 scene.add(camera)
 
-/**
- * 💡 LUCES & REFLEJOS (Vital para metales)
- */
 const ambientLight = new THREE.AmbientLight(0xffffff, 2.0)
 scene.add(ambientLight)
 
@@ -61,57 +127,53 @@ window.addEventListener('resize', () => {
 })
 
 /**
- * 📂 LOADERS
+ * 4. LOADERS
  */
 const loadingManager = new THREE.LoadingManager()
 const gltfLoader = new GLTFLoader(loadingManager)
 const cubeTexloader = new THREE.CubeTextureLoader(loadingManager)
 
-// Cargamos el mapa de entorno (Skybox) para que la pintura brille
-// OJO: Asegúrate de que las imágenes existan en tu carpeta public
 const envMap = cubeTexloader.load(
-    [
-        '/sky_17_cubemap_2k/px.png', '/sky_17_cubemap_2k/nx.png',
-        '/sky_17_cubemap_2k/py.png', '/sky_17_cubemap_2k/ny.png',
-        '/sky_17_cubemap_2k/pz.png', '/sky_17_cubemap_2k/nz.png'
-    ],
-    () => { scene.environment = envMap } // Solo reflejos, no fondo visible
+    ['/sky_17_cubemap_2k/px.png', '/sky_17_cubemap_2k/nx.png', '/sky_17_cubemap_2k/py.png', '/sky_17_cubemap_2k/ny.png', '/sky_17_cubemap_2k/pz.png', '/sky_17_cubemap_2k/nz.png'],
+    () => { scene.environment = envMap; scene.background = envMap; }
 )
 
 /**
- * 🏗️ CONSTRUCCIÓN DE LA FILA
+ * 5. CONSTRUCCIÓN DE LA FILA
  */
 const galleryGroup = new THREE.Group()
 scene.add(galleryGroup)
-
-const loadedCars = [] // Array para guardar referencias y animarlos
+const loadedCars = [] 
 
 carsList.forEach((carData, index) => {
-    // Si no tienes el modelo real aún, usa el de McQueen para probar todos
-    // const path = carData.path // (Usa esto cuando tengas todos)
-    const path = carData.path || '/models/radiator_springs_lightning_mcqueen/scene.gltf' // Fallback para test
+    const path = carData.path || '/models/radiator_springs_lightning_mcqueen/scene.gltf'
 
     gltfLoader.load(path, (gltf) => {
         const model = gltf.scene
         
-        // Configuración
+        model.userData = { 
+            id: index,
+            name: carData.name,
+            bio: carData.bio,
+            stats: carData.stats,
+            baseRotationY: (Math.PI / 2) + (carData.rotationOffset || 0)
+        }
+
         model.scale.set(carData.scale, carData.scale, carData.scale)
-        
-        // Aplicar reflejos a todo el modelo
         model.traverse((child) => {
             if(child.isMesh) {
                 child.material.envMap = envMap
-                child.material.envMapIntensity = 1.5 // Más brillo para coches
+                child.material.envMapIntensity = 1.5 
             }
         })
 
-        // --- POSICIÓN LINEAL ---
-        // Los colocamos en fila sobre el eje X
-        model.position.x = index * carGap
-        model.position.y = -1 // Bajarlos un poco al "suelo"
-        
-        // Rotación inicial: De perfil (90 grados) para verlos bien al pasar
-        model.rotation.y = Math.PI / 2 
+        const baseX = index * carGap
+        const xFix = carData.offset ? carData.offset.x : 0
+        const yFix = carData.offset ? carData.offset.y : 0
+        const zFix = carData.offset ? carData.offset.z : 0
+
+        model.position.set(baseX + xFix, -1 + yFix, 0 + zFix)
+        model.rotation.y = model.userData.baseRotationY
 
         galleryGroup.add(model)
         loadedCars.push(model)
@@ -119,84 +181,173 @@ carsList.forEach((carData, index) => {
 })
 
 /**
- * 🖱️ SCROLL & TOUCH (HÍBRIDO)
+ * 6. INTERACCIÓN (LÓGICA CORREGIDA PARA PERMITIR SCROLL DE TEXTO)
  */
-let scrollX = 0         // Destino
-let currentScroll = 0   // Actual (Lerp)
-const maxScroll = (carsList.length - 1) * carGap // Límite para no pasar al infinito
+let scrollX = 0 
+let currentScroll = 0
+const maxScroll = (carsList.length - 1) * carGap 
 
-// 1. DESKTOP (Rueda)
+const raycaster = new THREE.Raycaster()
+const mouse = new THREE.Vector2()
+
+// --- SCROLL DESKTOP ---
 window.addEventListener('wheel', (e) => {
-    // Scroll horizontal con la rueda vertical
-    scrollX += e.deltaY * 0.005
-    // Clamp (Límites)
-    scrollX = Math.min(Math.max(scrollX, -2), maxScroll + 2)
-})
+    // 🛑 IMPORTANTE: Si la ficha está abierta, dejamos que el navegador haga scroll normal
+    // y salimos de la función para no mover los coches.
+    if (isViewingDetail) return;
 
-// 2. MOBILE (Swipe)
+    // Si NO está abierta, bloqueamos el navegador y movemos los coches
+    e.preventDefault(); 
+    
+    scrollX += e.deltaY * 0.005
+    scrollX = Math.min(Math.max(scrollX, -2), maxScroll + 2)
+
+}, { passive: false })
+
+// --- SCROLL MOBILE ---
 let touchStartX = 0
 let isDragging = false
 
 window.addEventListener('touchstart', (e) => {
     touchStartX = e.touches[0].clientX
-    isDragging = true
-})
+    
+    // Solo iniciamos "arrastre 3D" si no estamos leyendo
+    if (!isViewingDetail) isDragging = true;
+    
+    mouse.x = (e.touches[0].clientX / sizes.width) * 2 - 1
+    mouse.y = -(e.touches[0].clientY / sizes.height) * 2 + 1
+}, { passive: false })
 
 window.addEventListener('touchmove', (e) => {
+    // 🛑 IMPORTANTE: Igual que en Wheel. Si leemos ficha, permitimos scroll nativo.
+    if (isViewingDetail) return;
+
+    e.preventDefault(); 
     if (!isDragging) return
-    const touchX = e.touches[0].clientX
-    const deltaX = touchX - touchStartX
     
-    // Sensibilidad táctil
+    const deltaX = e.touches[0].clientX - touchStartX
     scrollX -= deltaX * 0.02
     scrollX = Math.min(Math.max(scrollX, -2), maxScroll + 2)
-    
-    touchStartX = touchX
-})
+    touchStartX = e.touches[0].clientX
+}, { passive: false })
 
 window.addEventListener('touchend', () => { isDragging = false })
 
+
+// --- CLIC ---
+window.addEventListener('mousemove', (e) => {
+    mouse.x = (e.clientX / sizes.width) * 2 - 1
+    mouse.y = -(e.clientY / sizes.height) * 2 + 1
+})
+
+window.addEventListener('click', () => {
+    if (isViewingDetail) return
+    
+    raycaster.setFromCamera(mouse, camera)
+    const intersects = raycaster.intersectObjects(galleryGroup.children, true)
+
+    if (intersects.length > 0) {
+        const objectHit = intersects[0].object
+        // Buscar dueño
+        const carFound = loadedCars.find(carRoot => {
+            let belongs = false;
+            carRoot.traverse((child) => {
+                if (child === objectHit) belongs = true;
+            });
+            return belongs;
+        });
+
+        if (carFound) openDetailView(carFound);
+    }
+})
+
+// --- FUNCIONES UI ---
+function openDetailView(carObject) {
+    if (!carObject.position) return;
+
+    isViewingDetail = true
+    selectedCarIndex = carObject.userData.id
+
+    // Llenar datos
+    uiName.innerText = carObject.userData.name
+    uiDesc.innerText = carObject.userData.bio
+    uiSpeed.innerText = carObject.userData.stats.speed
+    uiHandling.innerText = carObject.userData.stats.handling
+
+    // Mostrar Panel
+    detailPanel.style.display = 'block'
+    
+    // ✅ TRUCO: Resetear el scroll del texto hacia arriba automáticamente
+    detailPanel.scrollTop = 0; 
+    
+    setTimeout(() => {
+        detailPanel.style.opacity = '1'
+        detailPanel.style.pointerEvents = 'all'
+    }, 10)
+
+    // Mover Cámara
+    const isMobile = window.innerWidth < 768
+    const targetZ = isMobile ? 4 : 3 
+    const targetXOffset = isMobile ? 0 : 1.5 
+    const targetX = carObject.position.x + targetXOffset
+
+    gsap.to(camera.position, {
+        duration: 1.5,
+        x: targetX, 
+        y: 1, 
+        z: targetZ,
+        ease: 'power2.inOut'
+    })
+}
+
+closeBtn.addEventListener('click', () => {
+    isViewingDetail = false
+    selectedCarIndex = null
+    
+    detailPanel.style.opacity = '0'
+    detailPanel.style.pointerEvents = 'none'
+    setTimeout(() => { 
+        if(!isViewingDetail) detailPanel.style.display = 'none' 
+    }, 500)
+    
+    gsap.to(camera.position, {
+        duration: 1.0,
+        x: currentScroll, 
+        y: 1.5,
+        z: 5,
+        ease: 'power2.inOut'
+    })
+})
+
 /**
- * 🎬 ANIMACIÓN & EFECTO SUSPENSIÓN
+ * 7. LOOP
  */
 const tick = () => {
-    
-    // 1. Mover la cámara suavemente hacia la posición del scroll
-    currentScroll += (scrollX - currentScroll) * 0.05
-    camera.position.x = currentScroll
-
-    // 2. Calcular Velocidad (Inercia)
-    const velocity = scrollX - currentScroll
-
-    // 3. Animar cada coche
-    loadedCars.forEach((car) => {
-        // A) Rotación leve "Showroom"
-        // El coche gira muy despacito para mostrar sus reflejos
-        car.rotation.y = (Math.PI / 2) + (Math.sin(Date.now() * 0.001) * 0.05)
-
-        // B) EFECTO SUSPENSIÓN (Pitch)
-        // Al acelerar (scroll), el coche se "agacha" o levanta el morro (eje Z o X según modelo)
-        // velocity * 0.2 controla la fuerza del cabeceo
-        car.rotation.z = -velocity * 0.15 
+    if (!isViewingDetail) {
+        currentScroll += (scrollX - currentScroll) * 0.05
+        camera.position.x = currentScroll
         
-        // C) EFECTO VELOCIDAD (Opcional)
-        // Se inclina un poco hacia atrás como si el viento le pegara
-        // car.rotation.x = -velocity * 0.05
-    })
-
+        const velocity = scrollX - currentScroll
+        loadedCars.forEach((car) => {
+            const baseRot = car.userData.baseRotationY || (Math.PI / 2)
+            car.rotation.y = baseRot + (Math.sin(Date.now() * 0.001) * 0.05)
+            car.rotation.z = -velocity * 0.15 
+        })
+    } else {
+        // Modo Vitrina (Giro suave del coche seleccionado)
+        if (selectedCarIndex !== null) {
+            const car = loadedCars.find(c => c.userData.id === selectedCarIndex);
+            if (car) {
+                car.rotation.y += 0.005 
+                car.rotation.z = 0 
+            }
+        }
+    }
     renderer.render(scene, camera)
     window.requestAnimationFrame(tick)
 }
 
 tick()
 
-/**
- * 🔙 BOTÓN VOLVER
- */
-// Asegúrate de tener <button id="back-btn" ...> en tu HTML
 const backBtn = document.getElementById('back-btn')
-if(backBtn) {
-    backBtn.addEventListener('click', () => {
-        window.history.back() // O window.location.href = 'index.html'
-    })
-}
+if(backBtn) backBtn.addEventListener('click', () => window.location.href = 'index.html')
