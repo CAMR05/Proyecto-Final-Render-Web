@@ -1,0 +1,11 @@
+Model Information:
+* title:	Francesco Bernoulli
+* source:	https://sketchfab.com/3d-models/francesco-bernoulli-46a9434db91444ff9d918c080a8a40c7
+* author:	LukeMcQueen02 (https://sketchfab.com/lukemcqueen02)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Francesco Bernoulli" (https://sketchfab.com/3d-models/francesco-bernoulli-46a9434db91444ff9d918c080a8a40c7) by LukeMcQueen02 (https://sketchfab.com/lukemcqueen02) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

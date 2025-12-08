@@ -1,214 +1,202 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import gsap from 'gsap'
 
 /**
- * Base
+ * ------------------------------------------------------------------
+ * CONFIGURACIÓN DE ESCENA
+ * ------------------------------------------------------------------
  */
-// Canvas
 const canvas = document.querySelector('canvas.webgl')
-
-// Scene
 const scene = new THREE.Scene()
+scene.background = new THREE.Color('#1a1a1a') // Fondo asfalto oscuro
+
+// Niebla para que los coches lejanos se desvanezcan elegantemente
+scene.fog = new THREE.Fog('#1a1a1a', 10, 25)
 
 /**
- * CONFIGURACIÓN DEL CARRUSEL
+ * 🚗 TU COLECCIÓN DE COCHES
+ * Añade aquí las rutas de tus modelos GLTF
  */
-const carouselRadius = 6 // Radio del círculo
-const scaleMultiplier = 1.5 // Cuánto crece el objeto activo (1.5 = 50% más grande)
-const carouselGroup = new THREE.Group()
-scene.add(carouselGroup)
-
-// Lista de modelos con sus escalas base individuales
-const modelsList = [
-    { path: '/models/comic/scene.gltf', scale: 1 },
-    { path: '/models/radiator_springs_lightning_mcqueen/scene.gltf', scale: 0.05 }, 
-    { path: '/models/cassette_case/scene.gltf', scale: 1 }, 
-    // Puedes repetir para llenar más el círculo si quieres
+const carsList = [
+    { name: 'McQueen', path: '/models/radiator_springs_lightning_mcqueen/scene.gltf', scale: 0.05 },
+    { name: 'Mater', path: '/models/mate/scene.gltf', scale: 1.2 }, // Ejemplo
+    { name: 'Sally', path: '/models/sally/scene.gltf', scale: 0.04 }, // Ejemplo
+    { name: 'Doc', path: '/models/doc_hudson/scene.gltf', scale: 1 }, // Ejemplo
+    { name: 'Ramone', path: '/models/ramone/scene.gltf', scale: 1 }, // Ejemplo
 ]
 
+// Distancia horizontal entre cada coche
+const carGap = 6 
+
 /**
- * Luces
+ * 📏 CÁMARA
  */
-const ambientLight = new THREE.AmbientLight(0xffffff, 2.4)
+const sizes = { width: window.innerWidth, height: window.innerHeight }
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+
+// Posición: Un poco lateral y elevada para verlos en perspectiva "Showroom"
+camera.position.set(0, 1.5, 5) 
+scene.add(camera)
+
+/**
+ * 💡 LUCES & REFLEJOS (Vital para metales)
+ */
+const ambientLight = new THREE.AmbientLight(0xffffff, 2.0)
 scene.add(ambientLight)
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8)
-directionalLight.position.set(5, 5, 5)
-directionalLight.castShadow = true
-scene.add(directionalLight)
+const dirLight = new THREE.DirectionalLight(0xffffff, 3.0)
+dirLight.position.set(5, 10, 7)
+scene.add(dirLight)
 
-/**
- * Tamaños
- */
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-}
+const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true })
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 window.addEventListener('resize', () => {
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
-
     camera.aspect = sizes.width / sizes.height
     camera.updateProjectionMatrix()
-
     renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
 /**
- * Cámara
- */
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-// Posición: En el centro X, un poco arriba en Y, y hacia atrás en Z para ver el carrusel completo
-camera.position.set(0, 1.5, 11) 
-scene.add(camera)
-
-/**
- * Renderer
- */
-const renderer = new THREE.WebGLRenderer({
-    canvas: canvas,
-    alpha: true // Fondo transparente (opcional)
-})
-renderer.shadowMap.enabled = true
-renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-/**
- * Loaders & Environment Map
+ * 📂 LOADERS
  */
 const loadingManager = new THREE.LoadingManager()
 const gltfLoader = new GLTFLoader(loadingManager)
 const cubeTexloader = new THREE.CubeTextureLoader(loadingManager)
 
-// Carga del mapa de entorno (para que los metales brillen)
-const envMap = cubeTexloader.load([
-    '/sky_17_cubemap_2k/nx.png', '/sky_17_cubemap_2k/px.png',
-    '/sky_17_cubemap_2k/py.png', '/sky_17_cubemap_2k/ny.png',
-    '/sky_17_cubemap_2k/nz.png', '/sky_17_cubemap_2k/pz.png',
-])
-scene.background = envMap // O puedes quitar esto si quieres fondo de color plano
-scene.environment = envMap
+// Cargamos el mapa de entorno (Skybox) para que la pintura brille
+// OJO: Asegúrate de que las imágenes existan en tu carpeta public
+const envMap = cubeTexloader.load(
+    [
+        '/sky_17_cubemap_2k/px.png', '/sky_17_cubemap_2k/nx.png',
+        '/sky_17_cubemap_2k/py.png', '/sky_17_cubemap_2k/ny.png',
+        '/sky_17_cubemap_2k/pz.png', '/sky_17_cubemap_2k/nz.png'
+    ],
+    () => { scene.environment = envMap } // Solo reflejos, no fondo visible
+)
 
 /**
- * 🌀 LÓGICA DE CARGA Y POSICIONAMIENTO RADIAL
+ * 🏗️ CONSTRUCCIÓN DE LA FILA
  */
-const angleIncrement = (Math.PI * 2) / modelsList.length // 360 grados / número de modelos
+const galleryGroup = new THREE.Group()
+scene.add(galleryGroup)
 
-modelsList.forEach((modelData, index) => {
-    gltfLoader.load(modelData.path, (gltf) => {
+const loadedCars = [] // Array para guardar referencias y animarlos
+
+carsList.forEach((carData, index) => {
+    // Si no tienes el modelo real aún, usa el de McQueen para probar todos
+    // const path = carData.path // (Usa esto cuando tengas todos)
+    const path = carData.path || '/models/radiator_springs_lightning_mcqueen/scene.gltf' // Fallback para test
+
+    gltfLoader.load(path, (gltf) => {
         const model = gltf.scene
-
-        // 1. Guardamos la escala base en la memoria del objeto
-        // Esto es crucial para saber a qué tamaño volver cuando deje de ser "activo"
-        model.userData.baseScale = modelData.scale
-
-        // 2. Aplicamos escala inicial
-        model.scale.set(modelData.scale, modelData.scale, modelData.scale)
-
-        // 3. Materiales (Environment Map)
+        
+        // Configuración
+        model.scale.set(carData.scale, carData.scale, carData.scale)
+        
+        // Aplicar reflejos a todo el modelo
         model.traverse((child) => {
-            if (child.isMesh) {
+            if(child.isMesh) {
                 child.material.envMap = envMap
-                child.material.envMapIntensity = 1.0
+                child.material.envMapIntensity = 1.5 // Más brillo para coches
             }
         })
 
-        // 4. Matemáticas Circulares
-        const angle = index * angleIncrement
+        // --- POSICIÓN LINEAL ---
+        // Los colocamos en fila sobre el eje X
+        model.position.x = index * carGap
+        model.position.y = -1 // Bajarlos un poco al "suelo"
         
-        // Coordenadas Polares (X, Z)
-        const x = Math.cos(angle) * carouselRadius
-        const z = Math.sin(angle) * carouselRadius
+        // Rotación inicial: De perfil (90 grados) para verlos bien al pasar
+        model.rotation.y = Math.PI / 2 
 
-        model.position.set(x, 0, z)
-
-        // 5. Orientación: Hacemos que miren hacia afuera
-        // Rotamos -angle para contrarrestar la posición y -PI/2 para alinear el frente
-        model.rotation.y = -angle - Math.PI / 2
-
-        // Añadir al grupo
-        carouselGroup.add(model)
+        galleryGroup.add(model)
+        loadedCars.push(model)
     })
 })
 
 /**
- * 🖱️ EVENTO SCROLL (GSAP)
+ * 🖱️ SCROLL & TOUCH (HÍBRIDO)
  */
-let scrollY = 0
+let scrollX = 0         // Destino
+let currentScroll = 0   // Actual (Lerp)
+const maxScroll = (carsList.length - 1) * carGap // Límite para no pasar al infinito
 
-window.addEventListener('wheel', (event) => {
-    // Sensibilidad del scroll
-    scrollY += event.deltaY * 0.002
-
-    // Rotamos todo el grupo
-    gsap.to(carouselGroup.rotation, {
-        duration: 1.5,
-        ease: 'power2.out', // Frenado suave
-        y: scrollY
-    })
+// 1. DESKTOP (Rueda)
+window.addEventListener('wheel', (e) => {
+    // Scroll horizontal con la rueda vertical
+    scrollX += e.deltaY * 0.005
+    // Clamp (Límites)
+    scrollX = Math.min(Math.max(scrollX, -2), maxScroll + 2)
 })
 
-/**
- * 🎬 ANIMATE LOOP
- */
-let currentActiveObject = null // Rastreador del objeto seleccionado
+// 2. MOBILE (Swipe)
+let touchStartX = 0
+let isDragging = false
 
+window.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX
+    isDragging = true
+})
+
+window.addEventListener('touchmove', (e) => {
+    if (!isDragging) return
+    const touchX = e.touches[0].clientX
+    const deltaX = touchX - touchStartX
+    
+    // Sensibilidad táctil
+    scrollX -= deltaX * 0.02
+    scrollX = Math.min(Math.max(scrollX, -2), maxScroll + 2)
+    
+    touchStartX = touchX
+})
+
+window.addEventListener('touchend', () => { isDragging = false })
+
+/**
+ * 🎬 ANIMACIÓN & EFECTO SUSPENSIÓN
+ */
 const tick = () => {
     
-    // --- LÓGICA DE DETECCIÓN DE ACTIVO ---
-    if (carouselGroup.children.length > 0) {
-        let closestObject = null
-        let minDistance = Infinity
+    // 1. Mover la cámara suavemente hacia la posición del scroll
+    currentScroll += (scrollX - currentScroll) * 0.05
+    camera.position.x = currentScroll
 
-        // 1. Buscar quién está más cerca de la cámara
-        carouselGroup.children.forEach((mesh) => {
-            // Obtener posición absoluta en el mundo
-            const worldPosition = new THREE.Vector3()
-            mesh.getWorldPosition(worldPosition)
+    // 2. Calcular Velocidad (Inercia)
+    const velocity = scrollX - currentScroll
 
-            const distance = camera.position.distanceTo(worldPosition)
+    // 3. Animar cada coche
+    loadedCars.forEach((car) => {
+        // A) Rotación leve "Showroom"
+        // El coche gira muy despacito para mostrar sus reflejos
+        car.rotation.y = (Math.PI / 2) + (Math.sin(Date.now() * 0.001) * 0.05)
 
-            if (distance < minDistance) {
-                minDistance = distance
-                closestObject = mesh
-            }
-        })
+        // B) EFECTO SUSPENSIÓN (Pitch)
+        // Al acelerar (scroll), el coche se "agacha" o levanta el morro (eje Z o X según modelo)
+        // velocity * 0.2 controla la fuerza del cabeceo
+        car.rotation.z = -velocity * 0.15 
+        
+        // C) EFECTO VELOCIDAD (Opcional)
+        // Se inclina un poco hacia atrás como si el viento le pegara
+        // car.rotation.x = -velocity * 0.05
+    })
 
-        // 2. Si cambió el protagonista, animamos escalas
-        if (closestObject && closestObject !== currentActiveObject) {
-            
-            // A) Encoger el anterior (si existe)
-            if (currentActiveObject) {
-                const base = currentActiveObject.userData.baseScale
-                gsap.to(currentActiveObject.scale, {
-                    duration: 0.5,
-                    x: base, y: base, z: base,
-                    ease: 'power1.out'
-                })
-            }
-
-            // B) Agrandar el nuevo
-            const base = closestObject.userData.baseScale
-            const activeScale = base * scaleMultiplier
-            
-            gsap.to(closestObject.scale, {
-                duration: 0.6,
-                x: activeScale, y: activeScale, z: activeScale,
-                ease: 'back.out(2)' // Efecto rebote
-            })
-
-            // Actualizar referencia
-            currentActiveObject = closestObject
-        }
-    }
-
-    // Render
     renderer.render(scene, camera)
     window.requestAnimationFrame(tick)
 }
 
 tick()
+
+/**
+ * 🔙 BOTÓN VOLVER
+ */
+// Asegúrate de tener <button id="back-btn" ...> en tu HTML
+const backBtn = document.getElementById('back-btn')
+if(backBtn) {
+    backBtn.addEventListener('click', () => {
+        window.history.back() // O window.location.href = 'index.html'
+    })
+}
