@@ -10,6 +10,21 @@ body
     overflow: hidden;
 }
 
+#start-btn{
+    position: fixed; /* Importante: Fixed para que flote sobre todo */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 30px;
+    font-size: 20px;
+    background: white;
+    border: none;
+    cursor: pointer;
+    
+    /* 🔥 LA CLAVE: Z-INDEX ALTO */
+    z-index: 100;
+}
+
 .webgl
 {
     position: fixed;
