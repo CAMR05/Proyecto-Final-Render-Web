@@ -1,11 +1,11 @@
 Model Information:
-* title:	Cassette Tape
-* source:	https://sketchfab.com/3d-models/cassette-tape-d595b87c10d8405c96920dccbae45b17
-* author:	Klasy (https://sketchfab.com/Klasy)
+* title:	Cassette tape
+* source:	https://sketchfab.com/3d-models/cassette-tape-a977adc43ee84d7bb98269f28feb8b6c
+* author:	Ribeirou7 (https://sketchfab.com/bruno.ribeiro1766)
 
 Model License:
 * license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 * requirements:	Author must be credited. Commercial use is allowed.
 
 If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
-This work is based on "Cassette Tape" (https://sketchfab.com/3d-models/cassette-tape-d595b87c10d8405c96920dccbae45b17) by Klasy (https://sketchfab.com/Klasy) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+This work is based on "Cassette tape" (https://sketchfab.com/3d-models/cassette-tape-a977adc43ee84d7bb98269f28feb8b6c) by Ribeirou7 (https://sketchfab.com/bruno.ribeiro1766) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

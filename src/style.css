@@ -1,19 +1,36 @@
-*
-{
+/* --- 1. RESET GLOBAL & BLOQUEO DE SCROLL --- */
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
+
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
+    /* 🔒 ESTO ES CRUCIAL: Prohíbe el scroll de la página entera */
     overflow: hidden; 
     position: fixed;
     overscroll-behavior: none; 
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #1a1a1a;
 }
 
-#start-btn{
+/* --- 2. EL LIENZO 3D --- */
+.webgl {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    outline: none;
+    z-index: 1; /* Al fondo */
+}
+
+/* --- 3. BOTONES DE NAVEGACIÓN --- */
+#start-btn {
     position: fixed; 
     top: 50%;
     left: 50%;
@@ -21,10 +38,17 @@ html, body {
     padding: 15px 30px;
     font-size: 20px;
     background: rgb(78, 0, 131);
+    color: white;
     border: none;
     cursor: pointer;
-    
     z-index: 100;
+    border-radius: 50px;
+    box-shadow: 0 0 20px rgba(78, 0, 131, 0.5);
+    transition: transform 0.3s;
+}
+
+#start-btn:hover {
+    transform: translate(-50%, -50%) scale(1.1);
 }
 
 .nav-btn {
@@ -48,8 +72,10 @@ html, body {
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* --- PANEL DE DETALLE (FICHA TÉCNICA) --- */
-#car-detail-panel {
+/* --- 4. PANEL DE DETALLE (FICHA TÉCNICA) --- */
+/* Aplicamos estilos a ambos IDs para que sirva en todas las páginas */
+#car-detail-panel,
+#detail-panel {
     position: fixed;
     top: 50%;
     right: 5%; /* En escritorio, a la derecha */
@@ -57,34 +83,44 @@ html, body {
     width: 350px;
     max-width: 90%;
     
-    /* Estilo "Glassmorphism" (Cristal oscuro) */
-    background: rgba(0, 0, 0, 0.75);
+    /* Estilo Cristal */
+    background: rgba(0, 0, 0, 0.85); /* Un poco más oscuro para mejor lectura */
     backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px); /* Para Safari */
+    -webkit-backdrop-filter: blur(15px);
     
     color: white;
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 40px;
-    z-index: 100; /* Por encima de todo */
+    z-index: 100; /* Encima del canvas */
     
-    /* Estado inicial: Invisible */
+    /* Estado inicial: Oculto para que no estorbe */
+    display: none; 
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    
+    transition: opacity 0.5s ease;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+    /* 📜 SCROLL INTERNO */
+    max-height: 80vh; /* Máximo 80% del alto de la pantalla */
+    overflow-y: auto; /* Si el texto es largo, scrollea AQUÍ dentro */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.5) transparent;
 }
 
-/* Títulos y Textos del Panel */
-#detail-name {
+/* Títulos */
+#detail-name, 
+#detail-title {
     margin-top: 0;
     margin-bottom: 15px;
-    color: #ff3333; /* Rojo Rayo McQueen */
+    color: #ff3333; /* Rojo (Puedes cambiar esto por JS si quieres otro color por sección) */
     text-transform: uppercase;
     font-size: 1.8rem;
     letter-spacing: 1px;
 }
 
+/* Descripción */
 #detail-desc {
     font-size: 0.95rem;
     line-height: 1.6;
@@ -106,8 +142,9 @@ html, body {
 }
 
 .stat-value {
-    color: #ffd700; /* Dorado Copa Pistón */
+    color: #ffd700; /* Dorado */
     font-size: 1.1rem;
+    font-weight: bold;
 }
 
 /* Botón Cerrar dentro del panel */
@@ -130,28 +167,25 @@ html, body {
     background: #f0f0f0;
 }
 
-/* --- RESPONSIVE (CELULARES) --- */
+/* --- 5. RESPONSIVE (CELULARES) --- */
 @media (max-width: 768px) {
-#car-detail-panel {
-    /* ... otros estilos ... */
-    position: fixed;
-    z-index: 100; /* CRUCIAL: Debe ser mayor que el canvas */
-    display: none; /* Empezamos ocultos */
-    opacity: 0;
-}
+    #car-detail-panel,
+    #detail-panel {
+        top: auto;
+        bottom: 20px; /* Pegado abajo */
+        right: 50%;
+        transform: translateX(50%); /* Centrado horizontal */
+        width: 90%;
+        padding: 25px;
+        max-height: 60vh; /* Menos alto en móvil */
+    }
     
-    #detail-name {
+    #detail-name, 
+    #detail-title {
         font-size: 1.4rem;
     }
     
     #detail-desc {
         font-size: 0.85rem;
     }
-}
-.webgl {
-    position: fixed;
-    top: 0;
-    left: 0;
-    outline: none;
-    z-index: 1;
 }
