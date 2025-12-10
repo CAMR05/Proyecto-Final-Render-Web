@@ -93,9 +93,9 @@ const cubeTexloader = new THREE.CubeTextureLoader(loadingManager)
 
 const envMap = cubeTexloader.load(
     [
-        '/music-Cube_Map/px.png', '/music-Cube_Map/nx.png',
-        '/music-Cube_Map/py.png', '/music-Cube_Map/ny.png',
-        '/music-Cube_Map/pz.png', '/music-Cube_Map/nz.png'
+        '/music-Cube-Map/px.png', '/music-Cube-Map/nx.png',
+        '/music-Cube-Map/py.png', '/music-Cube-Map/ny.png',
+        '/music-Cube-Map/pz.png', '/music-Cube-Map/nz.png'
     ],
     () => {
         scene.environment = envMap;

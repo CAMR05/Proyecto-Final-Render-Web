@@ -34,10 +34,7 @@ let isViewingDetail = false
 let selectedIndex = null 
 
 /**
- * 📼 DATOS DE COMICS (AJUSTE FINO DE ROTACIONES)
- * * fixRot: { x, y, z }
- * - Math.PI = 180 grados
- * - Math.PI / 2 = 90 grados
+ * DATOS DE COMICS 
  */
 const itemsList = [
     { 
