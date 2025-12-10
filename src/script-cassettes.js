@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import gsap from 'gsap'
 
 /**
- * CONFIGURACIÓN ESCENA
+ * 1. CONFIGURACIÓN ESCENA
  */
 const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
@@ -24,7 +24,7 @@ let isViewingDetail = false
 let selectedIndex = null
 
 /**
- * DATOS DE CASSETTES
+ * 2. DATOS DE CASSETTES
  */
 const itemsList = [
     {
@@ -47,7 +47,7 @@ const itemsList = [
     {
         name: 'Edward Van Halen',
         path: '/models/cassettes/compact_cassette_eddie/scene.gltf',
-        scale: 9, // Bajé de 17 a 5 para que no sea gigante
+        scale: 9,
         rotationOffset: 0,
         offset: { x: 0, y: 0, z: 0 },
         bio: "El virtuoso de la guitarra que revolucionó el rock.",
@@ -58,7 +58,7 @@ const itemsList = [
 const gap = 6 // Separación
 
 /**
- * CÁMARA & LUCES
+ * 3. CÁMARA & LUCES
  */
 const sizes = { width: window.innerWidth, height: window.innerHeight }
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.5, 100)
@@ -84,9 +84,8 @@ window.addEventListener('resize', () => {
 })
 
 /**
- * LOADERS
+ * 4. LOADERS
  */
-
 const loadingManager = new THREE.LoadingManager()
 const gltfLoader = new GLTFLoader(loadingManager)
 const cubeTexloader = new THREE.CubeTextureLoader(loadingManager)
@@ -106,7 +105,7 @@ const envMap = cubeTexloader.load(
 )
 
 /**
- * CONSTRUCCIÓN
+ * 5. CONSTRUCCIÓN
  */
 const galleryGroup = new THREE.Group()
 scene.add(galleryGroup)
@@ -123,10 +122,15 @@ itemsList.forEach((data, index) => {
             const yFix = data.offset ? data.offset.y : 0
             const zFix = data.offset ? data.offset.z : 0
 
+            // Calculamos la rotación base en Y (usamos Math.PI/2 porque los cassettes suelen venir planos)
+            const rotY = (Math.PI / 2) + (data.rotationOffset || 0)
+
             model.userData = {
                 id: index,
                 ...data,
-                baseY: yFix // Guardamos la altura corregida como base
+                baseY: yFix, // Guardamos la altura base para la animación de flotar
+                // IMPORTANTE: Guardamos la estructura que espera el tick loop
+                baseRotation: { x: 0, y: rotY, z: 0 } 
             }
 
             model.scale.set(data.scale, data.scale, data.scale)
@@ -136,7 +140,7 @@ itemsList.forEach((data, index) => {
 
             // Aplicamos posición inicial
             model.position.set(baseX + xFix, yFix, zFix)
-            model.rotation.y = (Math.PI / 2) + (data.rotationOffset || 0)
+            model.rotation.set(0, rotY, 0)
 
             galleryGroup.add(model)
             loadedItems.push(model)
@@ -147,7 +151,7 @@ itemsList.forEach((data, index) => {
 })
 
 /**
- * INTERACCIÓN
+ * 6. INTERACCIÓN
  */
 let scrollX = 0
 let currentScroll = 0
@@ -186,12 +190,13 @@ window.addEventListener('touchmove', (e) => {
 
 window.addEventListener('touchend', () => { isDragging = false })
 
-// Clic
+// COORDENADAS MOUSE (OPTIMIZADO - Ligero)
 window.addEventListener('mousemove', (e) => {
     mouse.x = (e.clientX / sizes.width) * 2 - 1
     mouse.y = -(e.clientY / sizes.height) * 2 + 1
 })
 
+// CLICK
 window.addEventListener('click', () => {
     if (isViewingDetail) return
     raycaster.setFromCamera(mouse, camera)
@@ -250,7 +255,7 @@ if (closeBtn) {
 }
 
 /**
- * LOOP
+ * 7. LOOP DE ANIMACIÓN
  */
 const tick = () => {
     const time = Date.now() * 0.001;
@@ -258,35 +263,48 @@ const tick = () => {
     if (!isViewingDetail) {
         currentScroll += (scrollX - currentScroll) * 0.05
         camera.position.x = currentScroll
-
+        
+        // Animamos los cassettes
         loadedItems.forEach((item, i) => {
-            // ANIMACIÓN FLOTAR
-            item.position.y = item.userData.baseY + Math.sin(time + i) * 0.1
+            // Obtenemos los valores guardados en el loader
+            const baseY = item.userData.baseY || 0
+            const baseRotY = item.userData.baseRotation ? item.userData.baseRotation.y : 0
 
-            item.rotation.y = (Math.PI / 2) + Math.cos(time * 0.5 + i) * 0.1
+            // ANIMACIÓN CASSETTES: 
+            // 1. Flotar arriba/abajo (eje Y position)
+            item.position.y = baseY + Math.sin(time + i) * 0.1
+            
+            // 2. Rotación suave (Wiggle en eje Y)
+            item.rotation.y = baseRotY + Math.cos(time * 0.5 + i) * 0.1
         })
+
     } else {
         if (selectedIndex !== null) {
-            // Buscar por ID para evitar errores de orden de carga
             const item = loadedItems.find(c => c.userData.id === selectedIndex);
-            if (item) item.rotation.y += 0.005
+            if (item && item.userData.baseRotation) {
+                // Rotación continua cuando se ve el detalle
+                item.rotation.y += 0.005
+            }
         }
     }
 
-    window.addEventListener('mousemove', (e) => {
-        mouse.x = (e.clientX / sizes.width) * 2 - 1
-        mouse.y = -(e.clientY / sizes.height) * 2 + 1
-
-        // Verificar si estamos sobre un objeto
+    // --- RAYCASTER OPTIMIZADO ---
+    // Solo calculamos si NO estamos viendo detalle para ahorrar CPU
+    if (!isViewingDetail) {
         raycaster.setFromCamera(mouse, camera)
-        const intersects = raycaster.intersectObjects(galleryGroup.children, true)
+        
+        // Usamos loadedItems para ser más eficientes
+        const intersects = raycaster.intersectObjects(loadedItems, true)
 
-        if (intersects.length > 0 && !isViewingDetail) {
-            canvas.style.cursor = 'pointer' // Manita
+        if (intersects.length > 0) {
+            document.body.style.cursor = 'pointer'
         } else {
-            canvas.style.cursor = 'default' // Flecha normal
+            document.body.style.cursor = 'default'
         }
-    })
+    } else {
+        document.body.style.cursor = 'default'
+    }
+
     renderer.render(scene, camera)
     window.requestAnimationFrame(tick)
 }

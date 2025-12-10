@@ -153,18 +153,15 @@ itemsList.forEach((data, index) => {
         (gltf) => {
             const model = gltf.scene
             
-            // Offsets de posición manual (si hubiera)
             const xFix = data.offset ? data.offset.x : 0
             const yFix = data.offset ? data.offset.y : 0
             const zFix = data.offset ? data.offset.z : 0
             
-            // Rotaciones manuales
-            // Si no definimos fixRot en data, usamos 0 por defecto
+
             const rotX = data.fixRot ? data.fixRot.x : 0
             const rotY = data.fixRot ? data.fixRot.y : 0
             const rotZ = data.fixRot ? data.fixRot.z : 0
 
-            // Guardamos datos incluyendo la rotación base para usarla en la animación
             model.userData = { 
                 id: index, 
                 ...data,
@@ -298,9 +295,21 @@ if(closeBtn) {
 /**
  * 7. LOOP DE ANIMACIÓN
  */
+
+    /**
+ * INTERACCIÓN OPTIMIZADA
+ */
+// Solo actualizamos coordenadas aquí. NO hacemos cálculos pesados.
+window.addEventListener('mousemove', (e) => {
+    mouse.x = (e.clientX / sizes.width) * 2 - 1
+    mouse.y = -(e.clientY / sizes.height) * 2 + 1
+})
+
+
 const tick = () => {
     const time = Date.now() * 0.001;
 
+    // --- LÓGICA DE SCROLL Y ANIMACIÓN (Lo que ya tenías) ---
     if (!isViewingDetail) {
         currentScroll += (scrollX - currentScroll) * 0.05
         camera.position.x = currentScroll
@@ -308,46 +317,46 @@ const tick = () => {
         const velocity = scrollX - currentScroll
 
         loadedItems.forEach((item) => {
-            const baseRotX = item.userData.baseRotation.x
-            const baseRotY = item.userData.baseRotation.y
-            const baseRotZ = item.userData.baseRotation.z
-
-            // 1. Inclinación al scrollear (pasar hojas)
-            item.rotation.z = baseRotZ - velocity * 0.2 
-            
-            // 2. Vaivén suave en Y
-            item.rotation.y = baseRotY + Math.sin(time * 0.5) * 0.1
-            
-            // 3. Mantenemos X fijo en su corrección base
-            item.rotation.x = baseRotX 
+             // ... Tus animaciones de rotación y posición que ya tienes ...
+             // (Déjalas tal cual están en tu código actual)
+             const baseRotX = item.userData.baseRotation ? item.userData.baseRotation.x : 0
+             const baseRotY = item.userData.baseRotation ? item.userData.baseRotation.y : 0
+             const baseRotZ = item.userData.baseRotation ? item.userData.baseRotation.z : 0
+             
+             // Ejemplo de lo que tenías (asegúrate de mantener tu lógica exacta de comics/cassettes):
+             if(item.userData.baseRotation) {
+                 item.rotation.z = baseRotZ - velocity * 0.2 
+                 item.rotation.y = baseRotY + Math.sin(time * 0.5) * 0.1
+                 item.rotation.x = baseRotX
+             }
         })
     } else {
+        // ... Lógica de detalle que ya tenías ...
         if (selectedIndex !== null) {
             const item = loadedItems.find(c => c.userData.id === selectedIndex);
-            if (item) {
-                const baseRotY = item.userData.baseRotation.y
-                const baseRotZ = item.userData.baseRotation.z
-
-
-                item.rotation.z = baseRotZ 
-                item.rotation.y = baseRotY + Math.sin(time) * 0.05 
+            if (item && item.userData.baseRotation) {
+                item.rotation.y = item.userData.baseRotation.y + Math.sin(time) * 0.05 
             }
         }
     }
-    window.addEventListener('mousemove', (e) => {
-    mouse.x = (e.clientX / sizes.width) * 2 - 1
-    mouse.y = -(e.clientY / sizes.height) * 2 + 1
 
-    // Verificar si estamos sobre un objeto
-    raycaster.setFromCamera(mouse, camera)
-    const intersects = raycaster.intersectObjects(galleryGroup.children, true)
+    // --- RAYCASTER OPTIMIZADO (AQUÍ ESTÁ EL ARREGLO) ---
+    // Solo calculamos si NO estamos viendo el detalle para ahorrar recursos
+    if (!isViewingDetail) {
+        raycaster.setFromCamera(mouse, camera)
+        
+        // Usamos 'loadedItems' en lugar de toda la escena para que sea más rápido
+        const intersects = raycaster.intersectObjects(loadedItems, true)
 
-    if (intersects.length > 0 && !isViewingDetail) {
-        canvas.style.cursor = 'pointer' // Manita
+        if (intersects.length > 0) {
+            document.body.style.cursor = 'pointer'
+        } else {
+            document.body.style.cursor = 'default'
+        }
     } else {
-        canvas.style.cursor = 'default' // Flecha normal
+        document.body.style.cursor = 'default'
     }
-})
+
     renderer.render(scene, camera)
     window.requestAnimationFrame(tick)
 }

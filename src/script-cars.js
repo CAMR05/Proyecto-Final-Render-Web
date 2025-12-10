@@ -10,7 +10,7 @@ const scene = new THREE.Scene()
 scene.background = new THREE.Color('#1a1a1a')
 scene.fog = new THREE.Fog('#1a1a1a', 10, 30)
 
-// Referencias HTML (Con validación por si algo falta en el HTML)
+// Referencias HTML
 const detailPanel = document.getElementById('car-detail-panel')
 const closeBtn = document.getElementById('close-detail')
 const uiName = document.getElementById('detail-name')
@@ -22,7 +22,7 @@ let isViewingDetail = false
 let selectedCarIndex = null
 
 /**
- * 🚗 2. DATOS DE LOS COCHES (TU LISTA COMPLETA)
+ * 2. DATOS DE LOS COCHES
  */
 const carsList = [
     {
@@ -30,7 +30,7 @@ const carsList = [
         path: '/models/cars/radiator_springs_lightning_mcqueen/scene.gltf',
         scale: 0.5,
         rotationOffset: 0,
-        bio: "El campeón de la Copa Pistón. Famoso por su velocidad y su lema 'Kachow!'. Ha ganado múltiples campeonatos y aprendido valiosas lecciones sobre la amistad en Radiador Springs.",
+        bio: "El campeón de la Copa Pistón. Famoso por su velocidad y su lema 'Kachow!'.",
         stats: { speed: '10/10', handling: '8/10' }
     },
     {
@@ -62,7 +62,6 @@ const carsList = [
         path: '/models/cars/francesco_bernoulli/scene.gltf',
         scale: 0.5,
         rotationOffset: -Math.PI / 2,
-
         bio: "El rival italiano de Fórmula. Es rápido y arrogante.",
         stats: { speed: '10/10', handling: '10/10' }
     },
@@ -71,7 +70,6 @@ const carsList = [
         path: '/models/cars/carla_veloso/scene.gltf',
         scale: 0.5,
         rotationOffset: 0,
-
         bio: "Competidora de Brasil. Su diseño aerodinámico la hace letal.",
         stats: { speed: '9/10', handling: '7/10' }
     },
@@ -129,7 +127,7 @@ const loadingManager = new THREE.LoadingManager()
 const gltfLoader = new GLTFLoader(loadingManager)
 const cubeTexloader = new THREE.CubeTextureLoader(loadingManager)
 
-
+// CUBEMAP: Asegúrate que esta carpeta existe tal cual en 'public'
 const envMap = cubeTexloader.load(
     [
         '/Cars-Cube-Map/px.png', '/Cars-Cube-Map/nx.png',
@@ -141,7 +139,7 @@ const envMap = cubeTexloader.load(
         scene.background = envMap;
     },
     undefined,
-    (err) => console.warn("⚠️ No se cargó la textura de fondo. Verifica la carpeta /Cars-Cube-Map/")
+    (err) => console.warn("⚠️ Error cargando Cubemap. Verifica la ruta /Cars-Cube-Map/")
 )
 
 /**
@@ -149,21 +147,23 @@ const envMap = cubeTexloader.load(
  */
 const galleryGroup = new THREE.Group()
 scene.add(galleryGroup)
-const loadedCars = []
+const loadedCars = [] 
 
 carsList.forEach((carData, index) => {
-    // Si la ruta está vacía, saltamos para evitar errores
     if (!carData.path) return;
 
     gltfLoader.load(carData.path, (gltf) => {
         const model = gltf.scene
+
+        // Calculamos la rotación base Y
+        const rotY = (Math.PI / 2) + (carData.rotationOffset || 0)
 
         model.userData = {
             id: index,
             name: carData.name,
             bio: carData.bio,
             stats: carData.stats,
-            baseRotationY: (Math.PI / 2) + (carData.rotationOffset || 0)
+            baseRotation: { x: 0, y: rotY, z: 0 } 
         }
 
         model.scale.set(carData.scale, carData.scale, carData.scale)
@@ -180,10 +180,12 @@ carsList.forEach((carData, index) => {
         const zFix = carData.offset ? carData.offset.z : 0
 
         model.position.set(baseX + xFix, -1 + yFix, 0 + zFix)
-        model.rotation.y = model.userData.baseRotationY
+        
+        // Aplicamos rotación inicial
+        model.rotation.set(0, rotY, 0)
 
         galleryGroup.add(model)
-        loadedCars.push(model)
+        loadedCars.push(model) 
     }, undefined, (error) => {
         console.error(`❌ Error al cargar modelo: ${carData.name}`, error);
     })
@@ -201,15 +203,10 @@ const mouse = new THREE.Vector2()
 
 // --- SCROLL (DESKTOP) ---
 window.addEventListener('wheel', (e) => {
-    // Si estamos viendo detalle, permitimos scroll normal para leer texto
     if (isViewingDetail) return;
-
-    // Si no, bloqueamos la página y movemos el 3D
     e.preventDefault();
-
     scrollX += e.deltaY * 0.005
     scrollX = Math.min(Math.max(scrollX, -2), maxScroll + 2)
-
 }, { passive: false })
 
 // --- TOUCH (MOBILE) ---
@@ -219,17 +216,14 @@ let isDragging = false
 window.addEventListener('touchstart', (e) => {
     touchStartX = e.touches[0].clientX
     if (!isViewingDetail) isDragging = true;
-
     mouse.x = (e.touches[0].clientX / sizes.width) * 2 - 1
     mouse.y = -(e.touches[0].clientY / sizes.height) * 2 + 1
 }, { passive: false })
 
 window.addEventListener('touchmove', (e) => {
     if (isViewingDetail) return;
-
     e.preventDefault();
     if (!isDragging) return
-
     const deltaX = e.touches[0].clientX - touchStartX
     scrollX -= deltaX * 0.02
     scrollX = Math.min(Math.max(scrollX, -2), maxScroll + 2)
@@ -238,22 +232,22 @@ window.addEventListener('touchmove', (e) => {
 
 window.addEventListener('touchend', () => { isDragging = false })
 
-// --- CLIC (RAYCASTER) ---
+// --- COORDENADAS MOUSE (OPTIMIZADO) ---
 window.addEventListener('mousemove', (e) => {
     mouse.x = (e.clientX / sizes.width) * 2 - 1
     mouse.y = -(e.clientY / sizes.height) * 2 + 1
 })
 
+// --- CLICK ---
 window.addEventListener('click', () => {
     if (isViewingDetail) return
 
     raycaster.setFromCamera(mouse, camera)
+    // ARREGLO: Usamos loadedCars aquí también
     const intersects = raycaster.intersectObjects(galleryGroup.children, true)
 
     if (intersects.length > 0) {
         const objectHit = intersects[0].object
-
-        // Búsqueda segura en el array (evita loops infinitos)
         const carFound = loadedCars.find(carRoot => {
             let belongs = false;
             carRoot.traverse((child) => { if (child === objectHit) belongs = true; });
@@ -272,22 +266,19 @@ function openDetailView(carObject) {
     isViewingDetail = true
     selectedCarIndex = carObject.userData.id
 
-    // Rellenar datos
     if (uiName) uiName.innerText = carObject.userData.name || ""
     if (uiDesc) uiDesc.innerText = carObject.userData.bio || ""
     if (uiSpeed && carObject.userData.stats) uiSpeed.innerText = carObject.userData.stats.speed
     if (uiHandling && carObject.userData.stats) uiHandling.innerText = carObject.userData.stats.handling
 
-    // Mostrar Panel
     detailPanel.style.display = 'block'
-    detailPanel.scrollTop = 0; // Reset scroll texto
+    detailPanel.scrollTop = 0;
 
     setTimeout(() => {
         detailPanel.style.opacity = '1'
         detailPanel.style.pointerEvents = 'all'
     }, 10)
 
-    // Mover Cámara
     const isMobile = window.innerWidth < 768
     const targetZ = isMobile ? 4 : 3
     const targetXOffset = isMobile ? 0 : 1.5
@@ -314,52 +305,53 @@ if (closeBtn) {
 }
 
 /**
- * 7. LOOP
+ * 7. LOOP DE ANIMACIÓN
  */
 const tick = () => {
+    const time = Date.now() * 0.001;
+
     if (!isViewingDetail) {
         currentScroll += (scrollX - currentScroll) * 0.05
         camera.position.x = currentScroll
+        
+        loadedCars.forEach((item) => {
+             // Recuperamos rotación base
+             const baseRotY = item.userData.baseRotation ? item.userData.baseRotation.y : 0
+             
 
-        const velocity = scrollX - currentScroll
-        loadedCars.forEach((car) => {
-            const baseRot = car.userData.baseRotationY || (Math.PI / 2)
-            car.rotation.y = baseRot + (Math.sin(Date.now() * 0.001) * 0.05)
-            car.rotation.z = -velocity * 0.15
+             item.rotation.y = baseRotY + Math.sin(time * 0.5) * 0.1
         })
     } else {
         if (selectedCarIndex !== null) {
-            const car = loadedCars.find(c => c.userData.id === selectedCarIndex);
-            if (car) {
-                car.rotation.y += 0.005
-                car.rotation.z = 0
+            const item = loadedCars.find(c => c.userData.id === selectedCarIndex);
+            if (item && item.userData.baseRotation) {
+                // Rotación suave en detalle
+                item.rotation.y = item.userData.baseRotation.y + Math.sin(time) * 0.05 
             }
         }
     }
 
-    window.addEventListener('mousemove', (e) => {
-        mouse.x = (e.clientX / sizes.width) * 2 - 1
-        mouse.y = -(e.clientY / sizes.height) * 2 + 1
-
-        // Verificar si estamos sobre un objeto
+    // --- RAYCASTER OPTIMIZADO ---
+    if (!isViewingDetail) {
         raycaster.setFromCamera(mouse, camera)
-        const intersects = raycaster.intersectObjects(galleryGroup.children, true)
+        const intersects = raycaster.intersectObjects(loadedCars, true)
 
-        if (intersects.length > 0 && !isViewingDetail) {
-            canvas.style.cursor = 'pointer' // Manita
+        if (intersects.length > 0) {
+            document.body.style.cursor = 'pointer'
         } else {
-            canvas.style.cursor = 'default' // Flecha normal
+            document.body.style.cursor = 'default'
         }
-    })
+    } else {
+        document.body.style.cursor = 'default'
+    }
+
     renderer.render(scene, camera)
     window.requestAnimationFrame(tick)
 }
 tick()
 
-// BOTÓN VOLVER (CON VALIDACIÓN)
+// BOTÓN VOLVER
 const backBtn = document.getElementById('back-btn')
 if (backBtn) {
     backBtn.addEventListener('click', () => window.location.href = 'index.html')
-} else {
-    console.warn("No se encontró el botón volver")
 }
