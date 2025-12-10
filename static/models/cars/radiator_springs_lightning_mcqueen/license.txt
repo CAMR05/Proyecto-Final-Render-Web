@@ -1,0 +1,11 @@
+Model Information:
+* title:	Radiator Springs Lightning McQueen
+* source:	https://sketchfab.com/3d-models/radiator-springs-lightning-mcqueen-7fa9892c4a28404383cafa9b831bdc79
+* author:	LukeMcQueen02 (https://sketchfab.com/lukemcqueen02)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Radiator Springs Lightning McQueen" (https://sketchfab.com/3d-models/radiator-springs-lightning-mcqueen-7fa9892c4a28404383cafa9b831bdc79) by LukeMcQueen02 (https://sketchfab.com/lukemcqueen02) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

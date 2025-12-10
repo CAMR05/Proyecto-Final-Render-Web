@@ -1,0 +1,11 @@
+Model Information:
+* title:	Swamp Thing comic
+* source:	https://sketchfab.com/3d-models/swamp-thing-comic-dd5fe4461e00425fb06c0bd528555e24
+* author:	rave-games (https://sketchfab.com/MaxWendt)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Swamp Thing comic" (https://sketchfab.com/3d-models/swamp-thing-comic-dd5fe4461e00425fb06c0bd528555e24) by rave-games (https://sketchfab.com/MaxWendt) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

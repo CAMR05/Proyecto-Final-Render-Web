@@ -1,0 +1,11 @@
+Model Information:
+* title:	Finn McMissle
+* source:	https://sketchfab.com/3d-models/finn-mcmissle-03fc7a3e760646178c580b8ed75d57a1
+* author:	LukeMcQueen02 (https://sketchfab.com/lukemcqueen02)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Finn McMissle" (https://sketchfab.com/3d-models/finn-mcmissle-03fc7a3e760646178c580b8ed75d57a1) by LukeMcQueen02 (https://sketchfab.com/lukemcqueen02) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -26,12 +26,12 @@ let selectedCarIndex = null
 const DEBUG_MODE = false; 
 
 /**
- * 🚗 2. DATOS DE LOS COCHES
+ *  2. DATOS DE LOS COCHES
  */
 const carsList = [
     { 
         name: 'Lightining McQueen', 
-        path: '/models/radiator_springs_lightning_mcqueen/scene.gltf', 
+        path: '/models/cars/radiator_springs_lightning_mcqueen/scene.gltf', 
         scale: 0.5, 
         rotationOffset: 0,
         bio: "El campeón de la Copa Pistón. Famoso por su velocidad y su lema 'Kachow!'. Ha ganado múltiples campeonatos y aprendido valiosas lecciones sobre la amistad en Radiador Springs.",
@@ -39,7 +39,7 @@ const carsList = [
     },
     { 
         name: 'Mate (Mater)', 
-        path: '/models/mater/scene.gltf', 
+        path: '/models/cars/mater/scene.gltf', 
         scale: 0.5, 
         rotationOffset: Math.PI, 
         bio: "El mejor conductor en reversa del mundo. Oxidado por fuera, pero con un corazón de oro.",
@@ -47,7 +47,7 @@ const carsList = [
     },
     { 
         name: 'Sally Carrera', 
-        path: '/models/sally_carrera/scene.gltf', 
+        path: '/models/cars/sally_carrera/scene.gltf', 
         scale: 0.5, 
         rotationOffset: 0,
         bio: "Abogada de Radiador Springs. Se enamoró del encanto del pueblo.",
@@ -55,7 +55,7 @@ const carsList = [
     },
     { 
         name: 'Dinoco McQueen', 
-        path: '/models/dinoco_lightning_mcqueen/scene.gltf', 
+        path: '/models/cars/dinoco_lightning_mcqueen/scene.gltf', 
         scale: 0.5,
         rotationOffset: 0,
         bio: "La versión soñada de McQueen pintado con el azul del patrocinador Dinoco.",
@@ -63,7 +63,7 @@ const carsList = [
     },
     { 
         name: 'Francesco Bernoulli', 
-        path: '/models/francesco_bernoulli/scene.gltf', 
+        path: '/models/cars/francesco_bernoulli/scene.gltf', 
         scale: 0.5,
         rotationOffset: -Math.PI/2,
         offset: { x: 0.5, y: 0, z: 2.5 }, 
@@ -72,7 +72,7 @@ const carsList = [
     },
     { 
         name: 'Carla Veloso', 
-        path: '/models/carla_veloso/scene.gltf', 
+        path: '/models/cars/carla_veloso/scene.gltf', 
         scale: 0.5,
         rotationOffset: 0,
         offset: { x: 4.5, y: 0, z: 3.5 }, 
@@ -81,7 +81,7 @@ const carsList = [
     },
     { 
         name: 'Cruz Ramirez', 
-        path: '/models/cruz_ramirez/scene.gltf', 
+        path: '/models/cars/cruz_ramirez/scene.gltf', 
         scale: 0.5, 
         rotationOffset: 0, 
         bio: "Entrenadora experta en tecnología con alma de corredora.",
@@ -89,7 +89,7 @@ const carsList = [
     },
     { 
         name: 'Holley Shiftwell', 
-        path: '/models/holley_shiftwell/scene.gltf', 
+        path: '/models/cars/holley_shiftwell/scene.gltf', 
         scale: 0.5, 
         rotationOffset: 0, 
         bio: "Espía británica equipada con la última tecnología.",
@@ -192,11 +192,9 @@ const mouse = new THREE.Vector2()
 
 // --- SCROLL DESKTOP ---
 window.addEventListener('wheel', (e) => {
-    // 🛑 IMPORTANTE: Si la ficha está abierta, dejamos que el navegador haga scroll normal
-    // y salimos de la función para no mover los coches.
+
     if (isViewingDetail) return;
 
-    // Si NO está abierta, bloqueamos el navegador y movemos los coches
     e.preventDefault(); 
     
     scrollX += e.deltaY * 0.005
@@ -219,7 +217,7 @@ window.addEventListener('touchstart', (e) => {
 }, { passive: false })
 
 window.addEventListener('touchmove', (e) => {
-    // 🛑 IMPORTANTE: Igual que en Wheel. Si leemos ficha, permitimos scroll nativo.
+
     if (isViewingDetail) return;
 
     e.preventDefault(); 
@@ -234,7 +232,7 @@ window.addEventListener('touchmove', (e) => {
 window.addEventListener('touchend', () => { isDragging = false })
 
 
-// --- CLIC ---
+// --- CLICK ---
 window.addEventListener('mousemove', (e) => {
     mouse.x = (e.clientX / sizes.width) * 2 - 1
     mouse.y = -(e.clientY / sizes.height) * 2 + 1
@@ -277,7 +275,6 @@ function openDetailView(carObject) {
     // Mostrar Panel
     detailPanel.style.display = 'block'
     
-    // ✅ TRUCO: Resetear el scroll del texto hacia arriba automáticamente
     detailPanel.scrollTop = 0; 
     
     setTimeout(() => {

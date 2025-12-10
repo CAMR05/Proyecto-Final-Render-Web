@@ -1,0 +1,8 @@
+Model Information:
+* title:	Akira vol. 4 (photogrammetry)
+* source:	https://sketchfab.com/3d-models/akira-vol-4-photogrammetry-842750844c854b7eb7e7149d49376fe3
+* author:	Austin Beaulier (https://sketchfab.com/Austin.Beaulier)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

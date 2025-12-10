@@ -1,0 +1,11 @@
+Model Information:
+* title:	Carla Veloso
+* source:	https://sketchfab.com/3d-models/carla-veloso-f2dd820f09ba45a98e61c10935365de9
+* author:	LukeMcQueen02 (https://sketchfab.com/lukemcqueen02)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Carla Veloso" (https://sketchfab.com/3d-models/carla-veloso-f2dd820f09ba45a98e61c10935365de9) by LukeMcQueen02 (https://sketchfab.com/lukemcqueen02) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Dinoco Lightning McQueen
+* source:	https://sketchfab.com/3d-models/dinoco-lightning-mcqueen-855e260f38f34dd182de10e17df29004
+* author:	DinseyPixarCarsModels (https://sketchfab.com/DinseyPixarCarsModels)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Dinoco Lightning McQueen" (https://sketchfab.com/3d-models/dinoco-lightning-mcqueen-855e260f38f34dd182de10e17df29004) by DinseyPixarCarsModels (https://sketchfab.com/DinseyPixarCarsModels) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

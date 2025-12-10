@@ -1,0 +1,11 @@
+Model Information:
+* title:	The Walking Dead Comic Issue 1 (Animated)
+* source:	https://sketchfab.com/3d-models/the-walking-dead-comic-issue-1-animated-614fa14f19c24de7a3f3923e6f238875
+* author:	Anthony Yanez (https://sketchfab.com/paulyanez)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "The Walking Dead Comic Issue 1 (Animated)" (https://sketchfab.com/3d-models/the-walking-dead-comic-issue-1-animated-614fa14f19c24de7a3f3923e6f238875) by Anthony Yanez (https://sketchfab.com/paulyanez) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

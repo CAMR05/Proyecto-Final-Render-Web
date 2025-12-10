@@ -81,9 +81,9 @@ const clickables = []
 const storedTextMeshes = [] 
 
 const modelsList = [
-    { path: '/models/comic/scene.gltf', scale: 1, textPath: '/models/texto-1.gltf', textScale: 1, link: '/comics.html' },
-    { path: '/models/radiator_springs_lightning_mcqueen/scene.gltf', scale: 0.5, textPath: '/models/texto-3.gltf', textScale: 1, link: '/cars.html' },
-    { path: '/models/cassette_case/scene.gltf', scale: 1, textPath: '/models/texto-2.gltf', textScale: 1, link: '/cassettes.html' }
+    { path: '/models/comicbooks/comic/scene.gltf', scale: 1, textPath: '/models/comicbooks/texto-1.gltf', textScale: 1, link: '/comics.html' },
+    { path: '/models/cars/radiator_springs_lightning_mcqueen/scene.gltf', scale: 0.5, textPath: '/models/cars/texto-3.gltf', textScale: 1, link: '/cars.html' },
+    { path: '/models/cassettes/cassette_case/scene.gltf', scale: 1, textPath: '/models/cassettes/texto-2.gltf', textScale: 1, link: '/cassettes.html' }
 ]
 
 const loadCarousel = () => {
