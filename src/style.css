@@ -1,191 +1,127 @@
-/* --- 1. RESET GLOBAL & BLOQUEO DE SCROLL --- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* =========================================
+   1. RESET GLOBAL
+   ========================================= */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    /* 🔒 ESTO ES CRUCIAL: Prohíbe el scroll de la página entera */
+    width: 100%; height: 100%;
     overflow: hidden; 
     position: fixed;
-    overscroll-behavior: none; 
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    overscroll-behavior: none;
     background-color: #1a1a1a;
+    font-family: 'Roboto', sans-serif;
 }
 
-/* --- 2. EL LIENZO 3D --- */
-.webgl {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    outline: none;
-    z-index: 1; /* Al fondo */
-}
+/* =========================================
+   2. ELEMENTOS 3D
+   ========================================= */
+.webgl { position: fixed; top: 0; left: 0; width: 100%; height: 100%; outline: none; z-index: 1; }
 
-/* --- 3. BOTONES DE NAVEGACIÓN --- */
+/* =========================================
+   3. BOTONES DE NAVEGACIÓN (HOME Y VOLVER)
+   ========================================= */
+/* Botón Gigante del Home */
 #start-btn {
     position: fixed; 
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    padding: 15px 30px;
-    font-size: 20px;
-    background: rgb(78, 0, 131);
+    padding: 15px 40px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: #4e0083; /* Morado */
     color: white;
-    border: none;
+    border: 2px solid rgba(255,255,255,0.2);
     cursor: pointer;
-    z-index: 100;
+    z-index: 1000; /* Z-index muy alto para asegurar que se vea */
     border-radius: 50px;
-    box-shadow: 0 0 20px rgba(78, 0, 131, 0.5);
-    transition: transform 0.3s;
+    box-shadow: 0 0 30px rgba(78, 0, 131, 0.6);
+    transition: transform 0.3s, background 0.3s;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+#start-btn:hover { 
+    transform: translate(-50%, -50%) scale(1.1); 
+    background: #6a00b0;
 }
 
-#start-btn:hover {
-    transform: translate(-50%, -50%) scale(1.1);
-}
-
+/* Botón Volver (En las páginas interiores) */
 .nav-btn {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 30px;
-    cursor: pointer;
-    z-index: 10;
-    backdrop-filter: blur(5px);
-    transition: background 0.3s;
-    font-weight: bold;
-    letter-spacing: 1px;
+    position: fixed; top: 20px; left: 20px; padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1); color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 30px;
+    cursor: pointer; z-index: 100; backdrop-filter: blur(5px);
+    transition: background 0.3s; font-weight: bold; letter-spacing: 1px;
 }
+.nav-btn:hover { background: rgba(255, 255, 255, 0.3); }
 
-.nav-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-/* --- 4. PANEL DE DETALLE (FICHA TÉCNICA) --- */
-/* Aplicamos estilos a ambos IDs para que sirva en todas las páginas */
-#car-detail-panel,
-#detail-panel {
-    position: fixed;
-    top: 50%;
-    right: 5%; /* En escritorio, a la derecha */
-    transform: translateY(-50%);
-    width: 350px;
-    max-width: 90%;
-    
-    /* Estilo Cristal */
-    background: rgba(0, 0, 0, 0.85); /* Un poco más oscuro para mejor lectura */
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    
-    color: white;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 40px;
-    z-index: 100; /* Encima del canvas */
-    
-    /* Estado inicial: Oculto para que no estorbe */
-    display: none; 
-    opacity: 0;
-    pointer-events: none;
-    
-    transition: opacity 0.5s ease;
+/* =========================================
+   4. PANELES DE DETALLE (BASE COMPARTIDA)
+   ========================================= */
+#car-detail-panel, #detail-panel, #comic-detail-panel {
+    position: fixed; top: 50%; right: 5%; transform: translateY(-50%);
+    width: 350px; max-width: 90%; z-index: 100;
+    display: none; opacity: 0; transition: opacity 0.4s ease;
+    max-height: 80vh; overflow-y: auto;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    border-radius: 20px; padding: 30px; color: white;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-
-    /* 📜 SCROLL INTERNO */
-    max-height: 80vh; /* Máximo 80% del alto de la pantalla */
-    overflow-y: auto; /* Si el texto es largo, scrollea AQUÍ dentro */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.5) transparent;
 }
 
-/* Títulos */
-#detail-name, 
-#detail-title {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #ff3333; /* Rojo (Puedes cambiar esto por JS si quieres otro color por sección) */
-    text-transform: uppercase;
-    font-size: 1.8rem;
-    letter-spacing: 1px;
-}
+/* =========================================
+   5. ESTILO CASSETTES (RETRO / CYAN)
+   ========================================= */
+#detail-panel { border: 1px solid rgba(255, 255, 255, 0.1); }
+#detail-panel #detail-title { margin: 0 0 15px 0; color: #00ffff; text-transform: uppercase; font-size: 1.8rem; letter-spacing: 2px; }
+#detail-panel #detail-desc { font-size: 0.95rem; line-height: 1.6; color: #ccc; margin-bottom: 20px; }
+#detail-panel .stats-container { border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 15px; }
+#detail-panel .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+#detail-panel .stat-value { color: #ff00ff; font-weight: bold; }
+#detail-panel #close-detail { margin-top: 20px; width: 100%; padding: 10px; background: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-/* Descripción */
-#detail-desc {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: #cccccc;
-    margin-bottom: 25px;
+/* =========================================
+   6. ESTILO CARS (RACING / ROJO)
+   ========================================= */
+#car-detail-panel {
+    border: 2px solid #ff3333; border-radius: 10px; background: rgba(20, 20, 20, 0.9);
+    transform: translateY(-50%) skewX(-5deg); 
+    font-family: 'Racing Sans One', cursive; /* Fuente especial */
 }
-
-/* Sección de Estadísticas */
-.stats-container {
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    padding-top: 20px;
+#car-detail-panel > * { transform: skewX(5deg); } /* Enderezar texto */
+#car-detail-panel #detail-name {
+    font-size: 2.2rem; color: white; text-shadow: 3px 3px 0px #cc0000;
+    margin-bottom: 10px; text-transform: uppercase; border-bottom: 4px solid #ff3333;
 }
-
-.stat-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 0.9rem;
+#car-detail-panel #detail-desc { font-size: 1rem; color: #ddd; font-style: italic; margin-bottom: 20px; font-family: 'Roboto', sans-serif;}
+#car-detail-panel .stats-container { background: rgba(255, 255, 255, 0.1); padding: 15px; border-left: 5px solid #ff3333; }
+#car-detail-panel .stat-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.2); padding: 5px 0; }
+#car-detail-panel .stat-label { color: #aaa; font-size: 0.9rem; }
+#car-detail-panel .stat-value { color: #ffd700; font-size: 1.5rem; }
+#car-detail-panel #close-detail {
+    margin-top: 20px; width: 100%; padding: 12px; background: #cc0000; color: white; border: none;
+    font-size: 1.2rem; text-transform: uppercase; cursor: pointer; transform: skewX(5deg);
 }
+#car-detail-panel #close-detail:hover { background: #ff0000; }
 
-.stat-value {
-    color: #ffd700; /* Dorado */
-    font-size: 1.1rem;
-    font-weight: bold;
-}
+/* =========================================
+   7. ESTILO COMICS (POP ART / AMARILLO)
+   ========================================= */
+#comic-detail-panel { border: 3px solid white; background: rgba(20, 20, 20, 0.95); font-family: 'Impact', sans-serif; }
+#comic-detail-panel #detail-title { color: #f9d71c; text-shadow: 3px 3px 0px #000, -1px -1px 0 #fff; font-size: 2.2rem; border-bottom: 2px dashed #f9d71c; }
+#comic-detail-panel #detail-desc { font-family: 'Roboto', sans-serif; font-size: 1rem; color: #fff; }
+#comic-detail-panel .stat-row { display: flex; justify-content: space-between; margin-bottom: 10px; background: #333; padding: 8px; border-left: 4px solid #f9d71c; }
+#comic-detail-panel .stat-value { color: #ffffff; }
+#comic-detail-panel #close-detail { margin-top: 20px; width: 100%; padding: 12px; background: #f9d71c; color: black; border: 2px solid white; font-weight: 900; cursor: pointer; }
+#comic-detail-panel #close-detail:hover { background: #fff; }
 
-/* Botón Cerrar dentro del panel */
-#close-detail {
-    margin-top: 30px;
-    width: 100%;
-    padding: 12px;
-    background: white;
-    color: black;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-    transition: transform 0.2s;
-}
-
-#close-detail:hover {
-    transform: scale(1.02);
-    background: #f0f0f0;
-}
-
-/* --- 5. RESPONSIVE (CELULARES) --- */
+/* =========================================
+   8. RESPONSIVE
+   ========================================= */
 @media (max-width: 768px) {
-    #car-detail-panel,
-    #detail-panel {
-        top: auto;
-        bottom: 20px; /* Pegado abajo */
-        right: 50%;
-        transform: translateX(50%); /* Centrado horizontal */
-        width: 90%;
-        padding: 25px;
-        max-height: 60vh; /* Menos alto en móvil */
+    #car-detail-panel, #detail-panel, #comic-detail-panel {
+        top: auto; bottom: 20px; right: 50%; transform: translateX(50%);
+        width: 92%; padding: 20px; max-height: 60vh;
     }
-    
-    #detail-name, 
-    #detail-title {
-        font-size: 1.4rem;
-    }
-    
-    #detail-desc {
-        font-size: 0.85rem;
-    }
+    #car-detail-panel { transform: translateX(50%); } 
+    #car-detail-panel > * { transform: none; }
 }
