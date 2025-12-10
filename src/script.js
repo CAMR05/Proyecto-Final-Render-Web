@@ -3,6 +3,15 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
 
+/**
+ * 0. ELEMENTOS DOM (PRELOADER)
+ */
+const loaderElement = document.querySelector('.loader')
+const progressText = document.getElementById('progress-text')
+
+/**
+ * 1. CONFIGURACIÓN ESCENA
+ */
 const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 scene.background = new THREE.Color('#333333')
@@ -53,13 +62,44 @@ scene.add(ambientLight)
 const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5)
 directionalLight.position.set(100, 200, 100)
 directionalLight.castShadow = true
-directionalLight.shadow.mapSize.set(1024, 1024) // Bajamos a 1024 para rendimiento móvil
+directionalLight.shadow.mapSize.set(1024, 1024) 
 scene.add(directionalLight)
 
+/**
+ * 2. GESTOR DE CARGA (LOADING MANAGER) - ¡AQUÍ ESTÁ LA MAGIA!
+ */
 const loadingManager = new THREE.LoadingManager()
+
+// A. Progreso (0% a 100%)
+loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+    const progress = (itemsLoaded / itemsTotal) * 100
+    if(progressText) {
+        progressText.innerText = Math.round(progress) + '%'
+    }
+}
+
+// B. Finalización (Desaparecer pantalla negra)
+loadingManager.onLoad = () => {
+    // Retraso pequeño para suavidad
+    setTimeout(() => {
+        if(loaderElement) {
+            loaderElement.classList.add('ended') // Activa el CSS de desvanecimiento
+            
+            // Opcional: Eliminar del DOM tras la animación
+            setTimeout(() => {
+                loaderElement.remove()
+            }, 1000)
+        }
+    }, 500)
+}
+
+// Pasamos el manager a los loaders
 const gltfLoader = new GLTFLoader(loadingManager)
 const cubeTexloader = new THREE.CubeTextureLoader(loadingManager)
 
+/**
+ * 3. CARGA DE RECURSOS
+ */
 const envMap = cubeTexloader.load(
     ['/sky_17_cubemap_2k/px.png', '/sky_17_cubemap_2k/nx.png', '/sky_17_cubemap_2k/py.png', '/sky_17_cubemap_2k/ny.png', '/sky_17_cubemap_2k/pz.png', '/sky_17_cubemap_2k/nz.png'],
     () => { scene.background = envMap; scene.environment = envMap }

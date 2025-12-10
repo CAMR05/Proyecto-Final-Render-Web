@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proyecto Final - Comics</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body>
 
+<body>
+    <div class="scene-ui">
+        <h1 class="section-title">COLECCIÓN DE CÓMICS</h1>
+        <div class="interaction-badge">
+            <span class="icon">👆</span>
+            <span class="text">Haz clic en un objeto para ver detalles</span>
+        </div>
+    </div>
     <canvas class="webgl"></canvas>
 
     <button id="back-btn" class="nav-btn">VOLVER</button>
@@ -15,14 +23,14 @@
     <div id="comic-detail-panel">
         <h2 id="detail-title">NOMBRE DEL COMIC</h2>
         <p id="detail-desc">Descripción...</p>
-        
+
         <div class="stats-container">
             <div class="stat-row">
-                <span id="label-1">Editorial:</span> 
+                <span id="label-1">Editorial:</span>
                 <strong id="stat-1" class="stat-value">-</strong>
             </div>
             <div class="stat-row">
-                <span id="label-2">Año:</span> 
+                <span id="label-2">Año:</span>
                 <strong id="stat-2" class="stat-value">-</strong>
             </div>
         </div>
@@ -32,4 +40,5 @@
 
     <script type="module" src="./script-comics.js"></script>
 </body>
+
 </html>

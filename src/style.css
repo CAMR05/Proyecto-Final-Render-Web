@@ -1,6 +1,6 @@
-/* =========================================
+/* 
    1. RESET GLOBAL
-   ========================================= */
+    */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
@@ -12,14 +12,60 @@ html, body {
     font-family: 'Roboto', sans-serif;
 }
 
-/* =========================================
+/* PANTALLA DE CARGA */
+.loader {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #1a1a1a; /* Mismo color de fondo que tu body */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Por encima de todo */
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+/* Cuando termine, añadiremos esta clase con JS */
+.loader.ended {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-content {
+    text-align: center;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+}
+
+.spinner {
+    width: 50px; height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    border-top: 5px solid #4e0083; /* Tu color morado */
+    border-radius: 50%;
+    margin: 0 auto 20px auto;
+    animation: spin 1s linear infinite;
+}
+
+#progress-text {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #888;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 
    2. ELEMENTOS 3D
-   ========================================= */
+    */
 .webgl { position: fixed; top: 0; left: 0; width: 100%; height: 100%; outline: none; z-index: 1; }
 
-/* =========================================
+/* 
    3. BOTONES DE NAVEGACIÓN (HOME Y VOLVER)
-   ========================================= */
+    */
 /* Botón Gigante del Home */
 #start-btn {
     position: fixed; 
@@ -54,9 +100,9 @@ html, body {
 }
 .nav-btn:hover { background: rgba(255, 255, 255, 0.3); }
 
-/* =========================================
+/* 
    4. PANELES DE DETALLE (BASE COMPARTIDA)
-   ========================================= */
+    */
 #car-detail-panel, #detail-panel, #comic-detail-panel {
     position: fixed; top: 50%; right: 5%; transform: translateY(-50%);
     width: 350px; max-width: 90%; z-index: 100;
@@ -68,9 +114,9 @@ html, body {
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* =========================================
+/* 
    5. ESTILO CASSETTES (RETRO / CYAN)
-   ========================================= */
+    */
 #detail-panel { border: 1px solid rgba(255, 255, 255, 0.1); }
 #detail-panel #detail-title { margin: 0 0 15px 0; color: #00ffff; text-transform: uppercase; font-size: 1.8rem; letter-spacing: 2px; }
 #detail-panel #detail-desc { font-size: 0.95rem; line-height: 1.6; color: #ccc; margin-bottom: 20px; }
@@ -79,9 +125,9 @@ html, body {
 #detail-panel .stat-value { color: #ff00ff; font-weight: bold; }
 #detail-panel #close-detail { margin-top: 20px; width: 100%; padding: 10px; background: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-/* =========================================
+/* 
    6. ESTILO CARS (RACING / ROJO)
-   ========================================= */
+    */
 #car-detail-panel {
     border: 2px solid #ff3333; border-radius: 10px; background: rgba(20, 20, 20, 0.9);
     transform: translateY(-50%) skewX(-5deg); 
@@ -103,9 +149,9 @@ html, body {
 }
 #car-detail-panel #close-detail:hover { background: #ff0000; }
 
-/* =========================================
+/* 
    7. ESTILO COMICS (POP ART / AMARILLO)
-   ========================================= */
+    */
 #comic-detail-panel { border: 3px solid white; background: rgba(20, 20, 20, 0.95); font-family: 'Impact', sans-serif; }
 #comic-detail-panel #detail-title { color: #f9d71c; text-shadow: 3px 3px 0px #000, -1px -1px 0 #fff; font-size: 2.2rem; border-bottom: 2px dashed #f9d71c; }
 #comic-detail-panel #detail-desc { font-family: 'Roboto', sans-serif; font-size: 1rem; color: #fff; }
@@ -114,9 +160,9 @@ html, body {
 #comic-detail-panel #close-detail { margin-top: 20px; width: 100%; padding: 12px; background: #f9d71c; color: black; border: 2px solid white; font-weight: 900; cursor: pointer; }
 #comic-detail-panel #close-detail:hover { background: #fff; }
 
-/* =========================================
+/* 
    8. RESPONSIVE
-   ========================================= */
+    */
 @media (max-width: 768px) {
     #car-detail-panel, #detail-panel, #comic-detail-panel {
         top: auto; bottom: 20px; right: 50%; transform: translateX(50%);
@@ -124,4 +170,97 @@ html, body {
     }
     #car-detail-panel { transform: translateX(50%); } 
     #car-detail-panel > * { transform: none; }
+}
+
+/* 9. UI DE ESCENA (TÍTULO Y PISTA INTERACTIVA)
+   */
+.scene-ui {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    z-index: 10; /* Encima del canvas, debajo de los paneles */
+    pointer-events: none; /* CRUCIAL: Deja pasar los clics al 3D */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+/* Estilo del Título */
+.section-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 0.9;
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    margin: 0;
+    
+    /* Por defecto (Para Cassettes y Autos - Fondos oscuros) */
+    color: rgba(255, 255, 255, 0.9); 
+    text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* La pastilla interactiva (Glassmorphism) */
+.interaction-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    
+    /* Vidrio esmerilado */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    
+    /* Animación de latido */
+    animation: pulseBadge 2.5s infinite ease-in-out;
+}
+
+.interaction-badge .icon { font-size: 1.2rem; }
+
+.interaction-badge .text {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: white; 
+}
+
+/* VARIANTE PARA CÓMICS (FONDO CLARO) 
+   Usa <div class="scene-ui light-theme"> en el HTML de comics
+*/
+.scene-ui.light-theme .section-title {
+    color: #1a1a1a; /* Texto oscuro */
+    text-shadow: none;
+}
+.scene-ui.light-theme .interaction-badge {
+    background: rgba(0, 0, 0, 0.05); /* Fondo oscuro semitransparente */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.scene-ui.light-theme .interaction-badge .text {
+    color: #333; /* Texto oscuro */
+}
+
+/* ANIMACIÓN "PULSE" 
+*/
+@keyframes pulseBadge {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* RESPONSIVE PARA LA UI 
+*/
+@media (max-width: 768px) {
+    .scene-ui {
+        top: 20px; left: 20px; right: 20px;
+        align-items: center; /* Centrado en móvil */
+        text-align: center;
+    }
+    .section-title {
+        font-size: 2.5rem; /* Más pequeño en móvil */
+    }
 }

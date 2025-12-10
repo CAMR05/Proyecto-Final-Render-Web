@@ -313,11 +313,9 @@ const tick = () => {
             const baseRotZ = item.userData.baseRotation.z
 
             // 1. Inclinación al scrollear (pasar hojas)
-            // IMPORTANTE: Sumamos a la base Z (para que Swamp Thing no se rompa si usó Z)
             item.rotation.z = baseRotZ - velocity * 0.2 
             
             // 2. Vaivén suave en Y
-            // SE SUMA A LA BASE Y (para que los invertidos sigan mirando al frente)
             item.rotation.y = baseRotY + Math.sin(time * 0.5) * 0.1
             
             // 3. Mantenemos X fijo en su corrección base
@@ -336,6 +334,20 @@ const tick = () => {
             }
         }
     }
+    window.addEventListener('mousemove', (e) => {
+    mouse.x = (e.clientX / sizes.width) * 2 - 1
+    mouse.y = -(e.clientY / sizes.height) * 2 + 1
+
+    // Verificar si estamos sobre un objeto
+    raycaster.setFromCamera(mouse, camera)
+    const intersects = raycaster.intersectObjects(galleryGroup.children, true)
+
+    if (intersects.length > 0 && !isViewingDetail) {
+        canvas.style.cursor = 'pointer' // Manita
+    } else {
+        canvas.style.cursor = 'default' // Flecha normal
+    }
+})
     renderer.render(scene, camera)
     window.requestAnimationFrame(tick)
 }

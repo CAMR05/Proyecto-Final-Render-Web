@@ -336,6 +336,21 @@ const tick = () => {
             }
         }
     }
+
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = (e.clientX / sizes.width) * 2 - 1
+        mouse.y = -(e.clientY / sizes.height) * 2 + 1
+
+        // Verificar si estamos sobre un objeto
+        raycaster.setFromCamera(mouse, camera)
+        const intersects = raycaster.intersectObjects(galleryGroup.children, true)
+
+        if (intersects.length > 0 && !isViewingDetail) {
+            canvas.style.cursor = 'pointer' // Manita
+        } else {
+            canvas.style.cursor = 'default' // Flecha normal
+        }
+    })
     renderer.render(scene, camera)
     window.requestAnimationFrame(tick)
 }

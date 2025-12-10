@@ -1,18 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proyecto Final Cars</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&family=Roboto:ital,wght@0,400;0,700;1,400;1,900&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&family=Roboto:ital,wght@0,400;0,700;1,400;1,900&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="./style.css">
 </head>
-<body>
 
+<body>
+    <div class="scene-ui">
+        <h1 class="section-title">COLECCIÓN DE CÓMICS</h1>
+        <div class="interaction-badge">
+            <span class="icon">👆</span>
+            <span class="text">Haz clic en un objeto para ver detalles</span>
+        </div>
+    </div>
     <canvas class="webgl"></canvas>
 
     <button id="back-btn" class="nav-btn">VOLVER</button>
@@ -21,16 +31,16 @@
         <div class="panel-header">
             <h2 id="detail-name">NOMBRE DEL COCHE</h2>
         </div>
-        
+
         <p id="detail-desc">Descripción...</p>
-        
+
         <div class="stats-container">
             <div class="stat-row">
-                <span class="stat-label">VELOCIDAD</span> 
+                <span class="stat-label">VELOCIDAD</span>
                 <strong id="detail-speed" class="stat-value">0/10</strong>
             </div>
             <div class="stat-row">
-                <span class="stat-label">MANEJO</span> 
+                <span class="stat-label">MANEJO</span>
                 <strong id="detail-handling" class="stat-value">0/10</strong>
             </div>
         </div>
@@ -40,4 +50,5 @@
 
     <script type="module" src="./script-cars.js"></script>
 </body>
+
 </html>
