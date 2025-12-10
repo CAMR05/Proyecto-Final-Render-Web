@@ -24,7 +24,7 @@ let isViewingDetail = false
 let selectedIndex = null 
 
 /**
- * 📼 DATOS DE CASSETTES
+ * DATOS DE CASSETTES
  */
 const itemsList = [
     { 
@@ -261,7 +261,6 @@ const tick = () => {
         
         loadedItems.forEach((item, i) => {
             // ANIMACIÓN FLOTAR
-            // Usamos la base guardada (que incluye tu corrección -2) y le sumamos la onda
             item.position.y = item.userData.baseY + Math.sin(time + i) * 0.1
             
             item.rotation.y = (Math.PI / 2) + Math.cos(time * 0.5 + i) * 0.1

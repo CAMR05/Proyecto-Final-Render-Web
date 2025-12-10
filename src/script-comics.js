@@ -54,7 +54,7 @@ const itemsList = [
     {
         name: 'Akira Volume. 4',
         path: '/models/comicbooks/akira_vol._4_photogrammetry/scene.gltf',
-        scale: 0.1, 
+        scale: 0.15, 
         bio: "La distopía cyberpunk en su máxima expresión. Kaneda y Tetsuo enfrentan su destino en Neo-Tokio.",
         stats: { label1: 'Editorial', val1: 'Kodansha', label2: 'Año', val2: '1984' }
     },
@@ -66,23 +66,23 @@ const itemsList = [
         stats: { label1: 'Editorial', val1: 'Image Comics', label2: 'Año', val2: '1992' }
     },
     {
-        name: 'Deadpool',
+        name: 'Deadpool & Wolverine',
         path: '/models/comicbooks/deadpool/scene.gltf',
-        scale: 1, 
-        bio: "El mercenario bocazas en su máxima expresión. Deadpool rompe la cuarta pared y redefine el anti-héroe.",
+        scale: 2.5, 
+        bio: "La caótica dupla de Deadpool y Wolverine se embarca en una aventura llena de acción y humor irreverente.",
         stats: { label1: 'Editorial', val1: 'Marvel', label2: 'Año', val2: '1991' }
     },
     {
         name: 'Swamp Thing',
         path: '/models/comicbooks/swamp_thing_comic/scene.gltf',
-        scale: 1, 
+        scale: 1.5, 
         bio: "La criatura del pantano lucha por proteger la naturaleza y descubrir su propia humanidad.",
         stats: { label1: 'Editorial', val1: 'DC Comics', label2: 'Año', val2: '1971' }
     },
     {
         name: 'The Walking Dead #1',
         path: '/models/comicbooks/the_walking_dead_comic/scene.gltf',
-        scale: 0.001, 
+        scale: 0.002, 
         bio: "El inicio de la saga apocalíptica. Rick Grimes despierta en un mundo dominado por los muertos vivientes.",
         stats: { label1: 'Editorial', val1: 'Image Comics', label2: 'Año', val2: '2003' }
     }
@@ -330,8 +330,7 @@ const tick = () => {
                 const baseRotY = item.userData.baseRotation.y
                 const baseRotZ = item.userData.baseRotation.z
 
-                // En detalle: de frente y suave
-                // Respetamos la rotación Z base (para Swamp Thing) pero quitamos el efecto velocity
+
                 item.rotation.z = baseRotZ 
                 item.rotation.y = baseRotY + Math.sin(time) * 0.05 
             }

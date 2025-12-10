@@ -13,7 +13,7 @@ let isExperienceActive = false
 const sizes = { width: window.innerWidth, height: window.innerHeight }
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 2000)
 
-// 📱 FUNCIÓN RESPONSIVE PARA CÁMARA
+// FUNCIÓN RESPONSIVE PARA CÁMARA
 const updateCameraPosition = () => {
     if(sizes.width < 768) {
         // Móvil: Más lejos y alto
@@ -133,7 +133,7 @@ if (startButton) {
         startButton.style.opacity = '0'
         setTimeout(() => startButton.style.display = 'none', 500)
 
-        // 📱 DESTINO RESPONSIVE
+        //  DESTINO RESPONSIVE
         const isMobile = window.innerWidth < 768
         // En móvil nos quedamos un poco más lejos (z: 18) para no comer pantalla
         const targetZ = isMobile ? 18 : 12

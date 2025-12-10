@@ -190,7 +190,7 @@ carsList.forEach((carData, index) => {
 })
 
 /**
- * 6. INTERACCIÓN (LÓGICA BLINDADA)
+ * 6. INTERACCIÓN
  */
 let scrollX = 0
 let currentScroll = 0
